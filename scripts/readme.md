@@ -1,0 +1,14 @@
+# Data processing pipeline (for CPC data)
+- **download_mediamath.sh**: Downloads the CPC and CTR datasets and places them in ```data/raw/mm-cpc/``` and ```data/raw/mm-ctr/```.
+- **process-cpc-data.py**: Applies various cleaning, encoding, and scaling transformations to raw data to convert them to model ingestible form.
+  - All numerical feature are scaled and imputed with 0's.
+  - All categorical features are imputed with -1's.
+    - All categorical features with cardinality less than a user-specified threshold are one-hot encoded.
+    - All categorical features with cardinality greater than or equal to a user-specified threshold are index (ordinal) encoded.
+  - All categorical features that are binary are left unchanged.
+  - All features are sorted by alphabetical order.
+  - The target feature **conversion_target** is moved to the last feature.
+  - A JSON is created at ```data/processed/mm-cpc/index-cardinality.json```, mapping the column index of all ordinal encoded features to its cardinality.
+  - Processed validation and test data is saved in ```data/processed/mm-cpc/```.
+  - Processed training data is saved in ```data/intermediate/mm-cpc/``` since it will need to be sharded.
+- **shard-cpc-data.py**: Shards CSV files in ```data/intermediate/mm-cpc/``` into a user-specified number of partitions and saves to ```data/processed/mm-cpc```.
